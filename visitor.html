@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Visitor Dashboard — NEU Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#F9FAFB;color:#111827;
+  min-height:100vh;overflow-x:hidden;
+}
+body.dark{background:#0D0F14;color:#F1F5F9;}
+
+:root{
+  --primary:#8B0000;--primary-l:#B22222;
+  --gold:#D4AF37;
+  --bg:#F9FAFB;--bg2:#FFFFFF;--bg3:#F3F4F6;
+  --text:#111827;--text2:#4B5563;--text3:#9CA3AF;
+  --border:rgba(0,0,0,0.08);
+  --shadow:0 2px 12px rgba(0,0,0,0.07);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.12);
+  --sidebar-w:240px;--topbar-h:64px;
+  --radius:12px;--radius-sm:8px;
+}
+body.dark{
+  --bg:#0D0F14;--bg2:#161A23;--bg3:#1E2330;
+  --text:#F1F5F9;--text2:#94A3B8;--text3:#475569;
+  --border:rgba(255,255,255,0.07);
+  --shadow:0 2px 12px rgba(0,0,0,0.3);
+  --shadow-lg:0 8px 32px rgba(0,0,0,0.45);
+}
+
+/* ── Layout ── */
+.shell{display:flex;min-height:100vh;}
+
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:#1A2236;
+  display:flex;flex-direction:column;
+  position:fixed;top:0;bottom:0;left:0;
+  overflow-y:auto;overflow-x:hidden;
+  z-index:200;
+}
+body.dark .sidebar{background:#111827;border-right:1px solid var(--border);}
+
+.sb-header{
+  padding:20px 16px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-logo-icon{
+  width:40px;height:40px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#8B0000,#B22222);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;box-shadow:0 4px 12px rgba(139,0,0,0.4);
+}
+.sb-logo-text strong{display:block;color:#fff;font-size:.88rem;line-height:1.2;}
+.sb-logo-text span{color:rgba(255,255,255,0.4);font-size:.7rem;}
+
+.sb-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.sb-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  color:rgba(255,255,255,0.5);
+  cursor:pointer;transition:all .18s;
+  font-size:.88rem;font-weight:500;
+  border:none;background:none;text-align:left;width:100%;
+  white-space:nowrap;
+}
+.sb-item svg{flex-shrink:0;width:17px;height:17px;}
+.sb-item:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.9);}
+.sb-item.active{background:#8B0000;color:#fff;box-shadow:0 4px 12px rgba(139,0,0,0.4);}
+
+.sb-footer{
+  padding:10px;
+  border-top:1px solid rgba(255,255,255,0.07);
+}
+
+/* ── Main ── */
+.main{
+  margin-left:var(--sidebar-w);
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  min-height:100vh;background:var(--bg);
+  transition:background .2s;
+}
+
+/* ── Top Bar ── */
+.topbar{
+  height:var(--topbar-h);
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;flex-shrink:0;
+  position:sticky;top:0;z-index:100;
+  box-shadow:var(--shadow);gap:16px;
+}
+.topbar-left{display:flex;flex-direction:column;justify-content:center;min-width:0;flex-shrink:1;}
+.topbar-left h2{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;color:var(--text);
+  line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.topbar-left p{font-size:.78rem;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:100px;padding:5px 14px 5px 5px;
+}
+.user-chip .av{
+  width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#8B0000,#B22222);
+  color:#fff;font-weight:700;font-size:.8rem;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.user-chip .uinfo{display:flex;flex-direction:column;}
+.user-chip .uname{font-size:.82rem;font-weight:600;color:var(--text);line-height:1.2;white-space:nowrap;}
+.user-chip .uemail{font-size:.7rem;color:var(--text2);white-space:nowrap;}
+
+/* Dark mode toggle — sun/moon */
+/* ── Theme Toggle Switch ── */
+.dm-btn{
+  width:64px;height:32px;border-radius:100px;
+  border:2.5px solid #333;
+  background:#1a1a1a;
+  cursor:pointer;position:relative;
+  transition:background .3s,border-color .3s;
+  flex-shrink:0;padding:0;
+}
+body:not(.dark) .dm-btn{background:#f0f0f0;border-color:#bbb;}
+.dm-knob{
+  position:absolute;top:3px;left:3px;
+  width:22px;height:22px;border-radius:50%;
+  background:#fff;border:2px solid #333;
+  transition:transform .28s cubic-bezier(.4,0,.2,1);
+  display:flex;align-items:center;justify-content:center;
+  color:#1a1a1a;
+}
+body.dark .dm-knob{transform:translateX(32px);background:#1a1a1a;border-color:#fff;color:#fff;}
+body:not(.dark) .dm-knob{background:#fff;border-color:#888;color:#555;}
+.dm-moon-svg{display:block;}
+.dm-sun-svg{display:none;}
+body:not(.dark) .dm-btn .dm-moon-svg{display:none;}
+body:not(.dark) .dm-btn .dm-sun-svg{display:block;}
+
+/* ── Content ── */
+.content{flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:20px;min-width:0;}
+
+/* ── Sections ── */
+.section{display:none;}
+.section.active{display:block;animation:fadeUp .22s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── Card ── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+  box-shadow:var(--shadow);
+}
+
+/* ── Visit Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.form-grid{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+label{font-size:.82rem;font-weight:500;color:var(--text2);}
+input,select{
+  width:100%;padding:10px 14px;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--bg);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;
+  outline:none;transition:border-color .18s,box-shadow .18s,background .2s;
+  appearance:none;
+}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,0,0,0.1);}
+input[readonly]{background:var(--bg3);cursor:default;color:var(--text2);}
+input::placeholder{color:var(--text3);}
+select{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg width='11' height='7' viewBox='0 0 11 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5.5 6L10 1' stroke='%239CA3AF' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;
+  padding-right:34px;
+}
+
+/* ── Purpose Grid ── */
+.purpose-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px;margin-top:4px;
+}
+.p-option{cursor:pointer;}
+.p-option input{display:none;}
+.p-label{
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:14px 10px;border-radius:var(--radius-sm);
+  border:2px solid var(--border);background:var(--bg3);
+  font-size:.82rem;font-weight:500;color:var(--text2);
+  transition:all .18s;text-align:center;cursor:pointer;
+}
+.p-label .pi{font-size:1.4rem;}
+.p-option input:checked+.p-label{border-color:var(--primary);background:rgba(139,0,0,0.07);color:var(--primary);}
+.p-option:hover .p-label{border-color:var(--primary-l);}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 20px;border-radius:var(--radius-sm);
+  font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;
+  border:none;cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn-sm{padding:7px 14px;font-size:.8rem;}
+.btn-block{width:100%;}
+.btn-primary{background:linear-gradient(135deg,#8B0000,#B22222);color:#fff;box-shadow:0 3px 10px rgba(139,0,0,0.25);}
+.btn-primary:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 18px rgba(139,0,0,0.32);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+
+/* ── Error/Success ── */
+.err-msg{
+  display:none;background:rgba(220,38,38,0.08);
+  border:1px solid rgba(220,38,38,0.2);color:#DC2626;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  font-size:.84rem;margin-top:4px;
+}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:.86rem;}
+thead th{
+  background:var(--bg3);padding:10px 14px;text-align:left;
+  font-size:.72rem;font-weight:700;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--text2);white-space:nowrap;
+  border-bottom:1px solid var(--border);
+}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg3);}
+tbody td{padding:11px 14px;color:var(--text);vertical-align:middle;}
+
+/* ── Badge ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.71rem;font-weight:600;}
+.b-red{background:rgba(139,0,0,0.1);color:#8B0000;}
+.b-green{background:rgba(5,150,105,0.1);color:#059669;}
+
+/* ── Welcome Modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:500;backdrop-filter:blur(4px);}
+.overlay.hidden{display:none;}
+.welcome-box{
+  background:var(--bg2);border-radius:20px;padding:48px 40px;
+  text-align:center;max-width:420px;width:90%;
+  animation:pop .35s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.welcome-icon{
+  width:70px;height:70px;background:linear-gradient(135deg,#8B0000,#B22222);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:1.8rem;margin:0 auto 18px;box-shadow:0 8px 24px rgba(139,0,0,0.3);
+}
+.welcome-box h2{font-family:'Playfair Display',serif;margin-bottom:8px;}
+.welcome-box p{color:var(--text2);font-size:.9rem;margin-bottom:20px;}
+.time-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(5,150,105,0.1);color:#059669;
+  padding:8px 16px;border-radius:100px;
+  font-size:.85rem;font-weight:600;margin-bottom:24px;
+}
+
+
+/* ── Toast ── */
+#toasts{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
+.toast{background:#1F2937;color:#fff;padding:10px 16px;border-radius:8px;font-size:.84rem;box-shadow:0 6px 20px rgba(0,0,0,.3);animation:slideUp .25s ease;display:flex;align-items:center;gap:8px;max-width:300px;}
+body.dark .toast{background:#2D3748;}
+.toast.success{border-left:4px solid #059669;}
+.toast.error{border-left:4px solid #DC2626;}
+.toast.info{border-left:4px solid #3B82F6;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rot .7s linear infinite;vertical-align:middle;margin-right:5px;}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+</style>
+</head>
+<body>
+
+<!-- Welcome Modal -->
+<div class="overlay hidden" id="welcome-modal">
+  <div class="welcome-box">
+    <div class="welcome-icon">🎉</div>
+    <h2>Welcome to NEU Library!</h2>
+    <p>Your visit has been recorded. Enjoy your time at the library.</p>
+    <div class="time-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Time In: <span id="modal-time">—</span>
+    </div>
+    <button class="btn btn-primary btn-block" id="modal-close">Continue to Portal</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-header">
+      <img src="New Era Library Logo.png" alt="NEU Library Logo" style="width:52px;height:52px;object-fit:contain;border-radius:50%;flex-shrink:0;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));"/>
+      <div class="sb-logo-text">
+        <strong>NEU Library</strong>
+        <span>Visitor Portal</span>
+      </div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-sec="visit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Log a Visit
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <button class="sb-item" id="logout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2>Welcome to NEU Library!</h2>
+        <p id="greeting">Welcome!</p>
+      </div>
+      <div class="topbar-right">
+        <button class="dm-btn" id="dm-btn" aria-label="Toggle theme"><div class="dm-knob"><svg class="dm-moon-svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="dm-sun-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div></button>
+        <div class="user-chip">
+          <div class="av" id="user-av">?</div>
+          <div class="uinfo">
+            <span class="uname" id="user-name">—</span>
+            <span class="uemail" id="user-email">—</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- LOG A VISIT -->
+      <div class="section active" id="sec-visit">
+        <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;">
+
+          <!-- Left: Form -->
+          <div class="card">
+            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">📋 Log Your Library Visit</h3>
+            <p style="color:var(--text2);font-size:.84rem;margin-bottom:22px;">Fill in the details below to record your visit.</p>
+            <form id="visit-form" novalidate>
+              <div class="form-grid" style="margin-bottom:16px;">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" id="vf-name" readonly/>
+                </div>
+                <div class="form-group">
+                  <label>Email</label>
+                  <input type="email" id="vf-email" readonly/>
+                </div>
+              </div>
+              <div class="form-grid" style="margin-bottom:16px;">
+                <div class="form-group">
+                  <label>Student Number</label>
+                  <input type="text" id="vf-sn" readonly/>
+                </div>
+                <div class="form-group">
+                  <label for="vf-type">User Type *</label>
+                  <select id="vf-type" required>
+                    <option value="" disabled selected>Select type</option>
+                    <option>Student</option><option>Faculty</option><option>Staff</option><option>Professor</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:16px;">
+                <label for="vf-college">College / Department *</label>
+                <select id="vf-college" required>
+                  <option value="" disabled selected>Select college</option>
+                  <option>College of Arts and Sciences</option>
+                  <option>College of Business Administration</option>
+                  <option>College of Computer Studies</option>
+                  <option>College of Criminal Justice Education</option>
+                  <option>College of Education</option>
+                  <option>College of Engineering</option>
+                  <option>College of Nursing</option>
+                  <option>College of Tourism and Hospitality Management</option>
+                  <option>Graduate School</option>
+                  <option>Senior High School</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:20px;">
+                <label>Purpose of Visit *</label>
+                <div class="purpose-grid" style="grid-template-columns:repeat(5,1fr);">
+                  <label class="p-option"><input type="radio" name="purpose" value="Reading" required/><span class="p-label"><span class="pi">📖</span>Reading</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Studying"/><span class="p-label"><span class="pi">✏️</span>Studying</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Research"/><span class="p-label"><span class="pi">🔬</span>Research</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Use of Computer"/><span class="p-label"><span class="pi">💻</span>Computer</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Group Study"/><span class="p-label"><span class="pi">👥</span>Group Study</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Borrowing Books"/><span class="p-label"><span class="pi">📚</span>Borrowing</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Returning Books"/><span class="p-label"><span class="pi">↩️</span>Returning</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Internet Access"/><span class="p-label"><span class="pi">🌐</span>Internet</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Consultation"/><span class="p-label"><span class="pi">🧑‍🏫</span>Consult</span></label>
+                  <label class="p-option"><input type="radio" name="purpose" value="Others"/><span class="p-label"><span class="pi">📝</span>Others</span></label>
+                </div>
+              </div>
+              <div class="err-msg" id="err-visit"></div>
+              <button type="submit" class="btn btn-primary btn-block" id="submit-btn" style="margin-top:8px;padding:13px;">
+                ✅ Check In to Library
+              </button>
+            </form>
+          </div>
+
+          <!-- Right: Info Panel -->
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <!-- Library Hours -->
+            <div class="card">
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">🕐 Library Hours</h4>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:.83rem;">
+                <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+                  <span style="color:var(--text2);">Monday – Friday</span>
+                  <span style="font-weight:600;color:var(--text);">7:00 AM – 7:00 PM</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
+                  <span style="color:var(--text2);">Saturday</span>
+                  <span style="font-weight:600;color:var(--text);">8:00 AM – 5:00 PM</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:7px 0;">
+                  <span style="color:var(--text2);">Sunday</span>
+                  <span style="font-weight:600;color:#DC2626;">Closed</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Library Rules -->
+            <div class="card">
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">📌 Library Reminders</h4>
+              <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:.82rem;color:var(--text2);">
+                <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Present your student ID at the entrance.</li>
+                <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Maintain silence inside the reading area.</li>
+                <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Food and drinks are not allowed inside.</li>
+                <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Return borrowed books on or before the due date.</li>
+                <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Handle library materials with care.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<div id="toasts"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const SUPABASE_URL = 'https://xoznxbqfgbkynmjhwqrq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhvem54YnFmZ2JreW5tamh3cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDg4MjYsImV4cCI6MjA4ODcyNDgyNn0.Kbm_Go6rRZkAU3m7HBwU3tbUnkEYqrnexGqYHRTh0nQ';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Auth guard ────────────────────────────────────────────────
+const user = JSON.parse(localStorage.getItem('neu_visitor') || 'null');
+if (!user) { window.location.href = 'login.html'; }
+
+// ── Theme toggle ──────────────────────────────────────────────
+if (localStorage.getItem('neu_theme') === 'dark') document.body.classList.add('dark');
+document.getElementById('dm-btn').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('neu_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+// ── User info ─────────────────────────────────────────────────
+const initials = (user.full_name || '?').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+document.getElementById('user-av').textContent    = initials;
+document.getElementById('user-name').textContent  = user.full_name || '—';
+document.getElementById('user-email').textContent = user.email || '—';
+const hr = new Date().getHours();
+const g  = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}! 👋`;
+
+// ── Navigation ────────────────────────────────────────────────
+document.querySelectorAll('.sb-item[data-sec]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sb-item[data-sec]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    const sec = btn.dataset.sec;
+    document.getElementById('sec-' + sec).classList.add('active');
+  });
+});
+
+// ── Time Out Logic ────────────────────────────────────────────
+// Records time_out on the visitor's most recent open visit (no time_out yet)
+async function recordTimeOut(reason) {
+  const now = new Date().toISOString();
+  // Find today's latest visit with no time_out
+  const today = new Date().toISOString().split('T')[0];
+  const { data } = await db.from('visits')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('date', today)
+    .is('time_out', null)
+    .order('time_in', { ascending: false })
+    .limit(1);
+  if (data && data.length > 0) {
+    await db.from('visits').update({ time_out: now }).eq('id', data[0].id);
+  }
+}
+
+// ── Inactivity Timer (15 minutes) ────────────────────────────
+let inactivityTimer;
+const INACTIVE_MS = 15 * 60 * 1000; // 15 minutes
+
+function resetTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(async () => {
+    await recordTimeOut('inactive');
+    localStorage.removeItem('neu_visitor');
+    // Show timeout notice then redirect
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;backdrop-filter:blur(6px);';
+    overlay.innerHTML = `<div style="background:var(--bg2);border-radius:16px;padding:40px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <div style="font-size:2.5rem;margin-bottom:12px;">⏱️</div>
+      <h3 style="font-family:'Playfair Display',serif;margin-bottom:8px;">Session Timed Out</h3>
+      <p style="color:var(--text2);font-size:.88rem;margin-bottom:20px;">You have been inactive for 15 minutes. Your time-out has been recorded.</p>
+      <button onclick="window.location.href='login.html'" style="background:linear-gradient(135deg,#8B0000,#B22222);color:#fff;border:none;padding:10px 28px;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600;">Back to Login</button>
+    </div>`;
+    document.body.appendChild(overlay);
+  }, INACTIVE_MS);
+}
+
+['mousemove','keydown','click','scroll','touchstart'].forEach(evt =>
+  document.addEventListener(evt, resetTimer, { passive: true })
+);
+resetTimer(); // Start timer on page load
+
+// ── Logout ────────────────────────────────────────────────────
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await recordTimeOut('logout');
+  localStorage.removeItem('neu_visitor');
+  window.location.href = 'login.html';
+});
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div'); t.className = `toast ${type}`;
+  t.innerHTML = `<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t); setTimeout(() => t.remove(), 4000);
+}
+
+// ── Pre-fill form ─────────────────────────────────────────────
+document.getElementById('vf-name').value  = user.full_name  || '';
+document.getElementById('vf-email').value = user.email      || '';
+document.getElementById('vf-sn').value    = user.student_number || 'N/A';
+if (user.user_type) { const s = document.getElementById('vf-type');   for (let o of s.options) if (o.value === user.user_type) { o.selected = true; break; } }
+if (user.college)   { const s = document.getElementById('vf-college'); for (let o of s.options) if (o.value === user.college)   { o.selected = true; break; } }
+
+
+// ── Visit form submit ─────────────────────────────────────────
+document.getElementById('visit-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const purpose   = [...document.querySelectorAll('input[name="purpose"]')].find(r => r.checked)?.value;
+  const college   = document.getElementById('vf-college').value;
+  const user_type = document.getElementById('vf-type').value;
+  const errEl     = document.getElementById('err-visit');
+  errEl.style.display = 'none';
+
+  if (!purpose)   { errEl.textContent = 'Please select a purpose of visit.'; errEl.style.display = 'block'; return; }
+  if (!college)   { errEl.textContent = 'Please select your college.';       errEl.style.display = 'block'; return; }
+  if (!user_type) { errEl.textContent = 'Please select your user type.';     errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Logging visit…';
+
+  const now = new Date();
+  const { error } = await db.from('visits').insert([{
+    user_id: user.id, full_name: user.full_name, email: user.email,
+    student_number: user.student_number, user_type, college, purpose,
+    time_in: now.toISOString(), date: now.toISOString().split('T')[0]
+  }]);
+
+  btn.disabled = false; btn.innerHTML = '✅ Check In to Library';
+
+  if (error) { errEl.textContent = 'Failed to log visit: ' + error.message; errEl.style.display = 'block'; return; }
+
+  document.getElementById('modal-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  document.getElementById('welcome-modal').classList.remove('hidden');
+  toast('Visit logged!', 'success');
+});
+
+document.getElementById('modal-close').addEventListener('click', () => {
+  document.getElementById('welcome-modal').classList.add('hidden');
+  document.querySelectorAll('.sb-item[data-sec]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+});
+
+// ── Visit History ─────────────────────────────────────────────
+
+</script>
+</body>
+</html>

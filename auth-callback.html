@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Signing in… — NEU Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0D0F14;color:#F1F5F9;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+}
+.box{
+  text-align:center;padding:48px 40px;
+  background:#161A23;border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;max-width:400px;width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+}
+.logo{width:72px;height:72px;object-fit:contain;border-radius:50%;margin:0 auto 20px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.5));}
+h2{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:8px;color:#F1F5F9;}
+p{color:#94A3B8;font-size:.88rem;margin-bottom:24px;}
+.spinner{
+  width:40px;height:40px;border:3px solid rgba(255,255,255,0.1);
+  border-top-color:#8B0000;border-radius:50%;
+  animation:spin .8s linear infinite;margin:0 auto 20px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status{font-size:.85rem;color:#94A3B8;min-height:20px;}
+.error-box{
+  background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.2);
+  border-radius:8px;padding:14px;margin-top:16px;
+  color:#FCA5A5;font-size:.84rem;display:none;
+}
+
+/* Role chooser */
+.role-box{display:none;margin-top:8px;}
+.role-btn{
+  width:100%;padding:14px 20px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.04);color:#F1F5F9;
+  font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:500;
+  cursor:pointer;transition:all .18s;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;text-align:left;
+}
+.role-btn:hover{background:rgba(139,0,0,0.15);border-color:rgba(139,0,0,0.4);}
+.role-btn .role-icon{font-size:1.4rem;flex-shrink:0;}
+.role-btn .role-info strong{display:block;font-size:.93rem;}
+.role-btn .role-info span{font-size:.78rem;color:#94A3B8;}
+</style>
+</head>
+<body>
+<div class="box">
+  <img src="New Era Library Logo.png" alt="NEU Library" class="logo"/>
+  <h2>NEU Library</h2>
+  <p id="sub-text">Verifying your account…</p>
+  <div class="spinner" id="spinner"></div>
+  <div class="status" id="status-text">Checking credentials…</div>
+  <div class="error-box" id="error-box"></div>
+
+  <!-- Role chooser — shown only when user has both roles -->
+  <div class="role-box" id="role-box">
+    <button class="role-btn" id="role-visitor">
+      <span class="role-icon">🎓</span>
+      <div class="role-info">
+        <strong>Visitor Portal</strong>
+        <span>Log library visits and view your visit history</span>
+      </div>
+    </button>
+    <button class="role-btn" id="role-admin">
+      <span class="role-icon">⚙️</span>
+      <div class="role-info">
+        <strong>Admin Panel</strong>
+        <span>Manage visitors, view analytics, export logs</span>
+      </div>
+    </button>
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://xoznxbqfgbkynmjhwqrq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhvem54YnFmZ2JreW5tamh3cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDg4MjYsImV4cCI6MjA4ODcyNDgyNn0.Kbm_Go6rRZkAU3m7HBwU3tbUnkEYqrnexGqYHRTh0nQ';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const statusEl = document.getElementById('status-text');
+const subText  = document.getElementById('sub-text');
+const spinner  = document.getElementById('spinner');
+const errorBox = document.getElementById('error-box');
+const roleBox  = document.getElementById('role-box');
+
+function showError(msg) {
+  spinner.style.display = 'none';
+  errorBox.textContent = msg;
+  errorBox.style.display = 'block';
+  statusEl.textContent = '';
+  setTimeout(() => { window.location.href = 'login.html'; }, 4000);
+}
+
+function setStatus(msg) { statusEl.textContent = msg; }
+
+async function handleCallback() {
+  // Supabase automatically processes the URL hash/fragment on createClient
+  // We just need to get the current session
+  const { data: { session }, error: sessionError } = await db.auth.getSession();
+
+  if (sessionError || !session) {
+    // Try exchanging code if present in URL (PKCE flow)
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      const { error: exchErr } = await db.auth.exchangeCodeForSession(code);
+      if (exchErr) { showError('Authentication failed. Redirecting to login…'); return; }
+    } else {
+      showError('No session found. Redirecting to login…'); return;
+    }
+  }
+
+  const { data: { session: sess } } = await db.auth.getSession();
+  if (!sess) { showError('Could not establish session. Please try again.'); return; }
+
+  const email = sess.user.email;
+  const name  = sess.user.user_metadata?.full_name || sess.user.user_metadata?.name || email.split('@')[0];
+
+  // ── Domain check ──────────────────────────────────────────
+  if (!email.endsWith('@neu.edu.ph')) {
+    await db.auth.signOut();
+    showError(`Only @neu.edu.ph accounts are allowed. You used: ${email}`);
+    return;
+  }
+
+  setStatus('Checking account roles…');
+
+  // ── Check both tables simultaneously ──────────────────────
+  const [{ data: adminData }, { data: userData }] = await Promise.all([
+    db.from('admins').select('*').eq('email', email).single(),
+    db.from('users').select('*').eq('email', email).single()
+  ]);
+
+  const isAdmin   = !!adminData;
+  const isVisitor = !!userData;
+
+  // ── Auto-provision visitor account if first Google login ──
+  let user = userData;
+  if (!isVisitor) {
+    setStatus('Creating visitor account…');
+    const { data: newUser, error: insertErr } = await db.from('users').insert([{
+      full_name:      name,
+      email:          email,
+      student_number: null,
+      user_type:      'Student',
+      college:        '',
+      password_hash:  btoa(email),
+      is_blocked:     false
+    }]).select().single();
+
+    if (insertErr && insertErr.code !== '23505') {
+      showError('Failed to create account: ' + insertErr.message); return;
+    }
+    const { data: fetchedUser } = await db.from('users').select('*').eq('email', email).single();
+    user = fetchedUser;
+    if (!user) { showError('Account setup failed. Please try again.'); return; }
+  }
+  // Re-fetch final fresh user state
+  const { data: finalUser } = await db.from('users').select('*').eq('id', user.id).single();
+  if (finalUser) user = finalUser;
+
+  // ── Route based on roles ───────────────────────────────────
+  if (isAdmin && isVisitor) {
+    // Dual-role user — show role chooser
+    spinner.style.display   = 'none';
+    statusEl.style.display  = 'none';
+    subText.textContent     = `Welcome, ${name.split(' ')[0]}! Choose how to sign in:`;
+    roleBox.style.display   = 'block';
+
+    document.getElementById('role-visitor').addEventListener('click', () => {
+      localStorage.setItem('neu_visitor', JSON.stringify(user));
+      window.location.href = 'visitor.html';
+    });
+    document.getElementById('role-admin').addEventListener('click', () => {
+      localStorage.setItem('neu_admin', JSON.stringify(adminData));
+      window.location.href = 'admin.html';
+    });
+
+  } else if (isAdmin) {
+    setStatus('Signing in as admin…');
+    localStorage.setItem('neu_admin', JSON.stringify(adminData));
+    window.location.href = 'admin.html';
+
+  } else {
+    setStatus('Signing in…');
+    if (user.is_blocked) { showError('Your account has been blocked. Contact the library admin.'); return; }
+    localStorage.setItem('neu_visitor', JSON.stringify(user));
+    window.location.href = 'visitor.html';
+  }
+}
+
+handleCallback();
+</script>
+</body>
+</html>

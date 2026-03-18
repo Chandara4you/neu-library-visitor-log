@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Register — NEU Library</title>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="auth-page">
+  <!-- Hero -->
+  <div class="auth-hero">
+    <div class="auth-hero-inner">
+      <div class="auth-hero-logo"><img src="New Era Library Logo.png" alt="NEU Library Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));"/></div>
+      <h2>Join NEU Library</h2>
+      <p>Create your account to start logging your library visits and track your visit history.</p>
+      <div class="auth-hero-features">
+        <div class="auth-hero-feat"><span class="icon">✅</span> Institutional email required</div>
+        <div class="auth-hero-feat"><span class="icon">🪪</span> Student Number in XX-XXXXX-XXX format</div>
+        <div class="auth-hero-feat"><span class="icon">📈</span> Track your visit history</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel -->
+  <div class="auth-panel">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div>
+          <h1>Create Account</h1>
+          <p style="color:var(--text2);font-size:.88rem;margin-top:4px;">Step <span id="step-current">1</span> of 2</p>
+        </div>
+        <button class="dm-btn" id="dm-toggle" aria-label="Toggle theme"><div class="dm-knob"><svg class="dm-moon-svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="dm-sun-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div></button>
+      </div>
+
+      <!-- Steps indicator -->
+      <div class="register-steps">
+        <div class="step-item active" id="si-1">
+          <div class="step-num">1</div>
+          <span class="step-label">Personal</span>
+        </div>
+        <div class="step-item" id="si-2">
+          <div class="step-num">2</div>
+          <span class="step-label">Account</span>
+        </div>
+      </div>
+
+      <form id="reg-form" novalidate>
+
+        <!-- Step 1: Personal Info -->
+        <div class="step-form active" id="step-1">
+          <div class="form-group">
+            <label for="r-fullname">Full Name <span style="color:var(--primary)">*</span></label>
+            <div class="input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="r-fullname" placeholder="Juan Dela Cruz" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="r-sn">Student Number</label>
+            <div class="input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              <input type="text" id="r-sn" placeholder="24-13161-731"/>
+            </div>
+            <small style="color:var(--text3);">Format: XX-XXXXX-XXX (leave blank if not applicable)</small>
+          </div>
+          <div class="form-group">
+            <label for="r-usertype">User Type <span style="color:var(--primary)">*</span></label>
+            <select id="r-usertype" required>
+              <option value="" disabled selected>Select your type</option>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Staff">Staff</option>
+              <option value="Professor">Professor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="r-college">College / Department <span style="color:var(--primary)">*</span></label>
+            <select id="r-college" required>
+              <option value="" disabled selected>Select your college</option>
+              <option>College of Arts and Sciences</option>
+              <option>College of Business Administration</option>
+              <option>College of Computer Studies</option>
+              <option>College of Criminal Justice Education</option>
+              <option>College of Education</option>
+              <option>College of Engineering</option>
+              <option>College of Nursing</option>
+              <option>College of Tourism and Hospitality Management</option>
+              <option>Graduate School</option>
+              <option>Senior High School</option>
+            </select>
+          </div>
+          <div class="error-msg" id="err-step1"></div>
+          <button type="button" id="next-btn" class="btn btn-primary btn-block btn-lg">
+            Continue <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+
+        <!-- Step 2: Account Credentials -->
+        <div class="step-form" id="step-2">
+          <div class="form-group">
+            <label for="r-email">Institutional Email <span style="color:var(--primary)">*</span></label>
+            <div class="input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+              <input type="email" id="r-email" placeholder="yourname@neu.edu.ph" required/>
+            </div>
+            <small style="color:var(--text3);">Must be a @neu.edu.ph email address</small>
+          </div>
+          <div class="form-group">
+            <label for="r-password">Password <span style="color:var(--primary)">*</span></label>
+            <div class="input-wrap input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="r-password" placeholder="Min. 8 characters" required style="padding-left:42px;padding-right:44px;"/>
+              <button type="button" class="toggle-pw">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="r-confirm">Confirm Password <span style="color:var(--primary)">*</span></label>
+            <div class="input-wrap input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="r-confirm" placeholder="Re-enter password" required style="padding-left:42px;padding-right:44px;"/>
+              <button type="button" class="toggle-pw">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="error-msg"   id="err-step2"></div>
+          <div class="success-msg" id="suc-step2"></div>
+          <div style="display:flex;gap:10px;margin-top:8px;">
+            <button type="button" id="back-btn" class="btn btn-ghost" style="flex:0 0 auto;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+              Back
+            </button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg" id="reg-submit">Create Account</button>
+          </div>
+        </div>
+
+      </form>
+
+      <p class="auth-footer-text" style="margin-top:20px;">
+        Already have an account? <a href="login.html"><strong>Sign in</strong></a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const SUPABASE_URL = 'https://xoznxbqfgbkynmjhwqrq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhvem54YnFmZ2JreW5tamh3cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDg4MjYsImV4cCI6MjA4ODcyNDgyNn0.Kbm_Go6rRZkAU3m7HBwU3tbUnkEYqrnexGqYHRTh0nQ';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Theme toggle ──────────────────────────────────────────────
+if (localStorage.getItem('neu_theme') === 'dark') document.body.classList.add('dark');
+document.getElementById('dm-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('neu_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+// password toggles
+document.querySelectorAll('.toggle-pw').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const inp=btn.previousElementSibling;
+    const show=inp.type==='password'; inp.type=show?'text':'password';
+    btn.innerHTML=show
+      ?`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      :`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  });
+});
+
+function toast(msg,type='info'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div'); t.className=`toast ${type}`;
+  t.innerHTML=`<span>${{success:'✅',error:'❌',info:'ℹ️'}[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t); setTimeout(()=>t.remove(),4500);
+}
+function showErr(id,msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function clearMsgs(){ ['err-step1','err-step2','suc-step2'].forEach(id=>{ document.getElementById(id).style.display='none'; }); }
+
+// Step navigation
+document.getElementById('next-btn').addEventListener('click',()=>{
+  clearMsgs();
+  const fn=document.getElementById('r-fullname').value.trim();
+  const ut=document.getElementById('r-usertype').value;
+  const co=document.getElementById('r-college').value;
+  const sn=document.getElementById('r-sn').value.trim();
+  if(!fn){ showErr('err-step1','Please enter your full name.'); return; }
+  if(!ut){ showErr('err-step1','Please select a user type.'); return; }
+  if(!co){ showErr('err-step1','Please select your college.'); return; }
+  if(sn && !/^\d{2}-\d{5}-\d{3}$/.test(sn)){ showErr('err-step1','Student number must be in XX-XXXXX-XXX format.'); return; }
+  document.getElementById('step-1').classList.remove('active');
+  document.getElementById('step-2').classList.add('active');
+  document.getElementById('si-1').classList.remove('active'); document.getElementById('si-1').classList.add('done');
+  document.getElementById('si-2').classList.add('active');
+  document.getElementById('step-current').textContent='2';
+});
+
+document.getElementById('back-btn').addEventListener('click',()=>{
+  clearMsgs();
+  document.getElementById('step-2').classList.remove('active');
+  document.getElementById('step-1').classList.add('active');
+  document.getElementById('si-1').classList.remove('done'); document.getElementById('si-1').classList.add('active');
+  document.getElementById('si-2').classList.remove('active');
+  document.getElementById('step-current').textContent='1';
+});
+
+// Register submit
+document.getElementById('reg-form').addEventListener('submit', async e=>{
+  e.preventDefault(); clearMsgs();
+  const email   = document.getElementById('r-email').value.trim();
+  const password= document.getElementById('r-password').value;
+  const confirm = document.getElementById('r-confirm').value;
+  const btn     = document.getElementById('reg-submit');
+
+  if(!email.endsWith('@neu.edu.ph')){ showErr('err-step2','Only @neu.edu.ph institutional emails are allowed.'); return; }
+  if(password.length<8){ showErr('err-step2','Password must be at least 8 characters.'); return; }
+  if(password!==confirm){ showErr('err-step2','Passwords do not match.'); return; }
+
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span> Creating account…';
+
+  const full_name    = document.getElementById('r-fullname').value.trim();
+  const student_number=document.getElementById('r-sn').value.trim()||null;
+  const user_type   = document.getElementById('r-usertype').value;
+  const college     = document.getElementById('r-college').value;
+  const password_hash= btoa(password);
+
+  // check duplicate email
+  const {data:existing} = await db.from('users').select('id').eq('email',email).maybeSingle();
+  if(existing){ btn.disabled=false; btn.innerHTML='Create Account'; showErr('err-step2','This email is already registered.'); return; }
+
+  const {data,error} = await db.from('users').insert([{
+    full_name, email, student_number, user_type, college, password_hash, is_blocked:false
+  }]).select().single();
+
+  btn.disabled=false; btn.innerHTML='Create Account';
+  if(error){ showErr('err-step2', error.message||'Registration failed. Please try again.'); return; }
+
+  const suc=document.getElementById('suc-step2');
+  suc.textContent='Account created! Redirecting to login…'; suc.style.display='block';
+  toast('Account created successfully!','success');
+  setTimeout(()=>window.location.href='login.html', 2000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign In — NEU Library</title>
+<link rel="stylesheet" href="css/style.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>"/>
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- jsQR for QR scanning -->
+</head>
+<body>
+
+<div class="auth-page">
+  <!-- Hero -->
+  <div class="auth-hero">
+    <div class="auth-hero-inner">
+      <div class="auth-hero-logo"><img src="New Era Library Logo.png" alt="NEU Library Logo" style="width:100px;height:100px;object-fit:contain;border-radius:50%;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.4));"/></div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to the NEU Library Visitor Log System using your preferred method.</p>
+      <div class="auth-hero-features">
+        <div class="auth-hero-feat"><span class="icon">🔵</span> Google Institutional Login</div>
+        <div class="auth-hero-feat"><span class="icon">🎓</span> Student Number Login</div>
+        <div class="auth-hero-feat"><span class="icon">🔒</span> @neu.edu.ph Accounts Only</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel -->
+  <div class="auth-panel">
+    <div class="auth-box">
+      <div class="auth-header">
+        <div>
+          <h1>Sign In</h1>
+          <p style="color:var(--text2);font-size:.88rem;margin-top:4px;">Access your visitor account</p>
+        </div>
+        <button class="dm-btn" id="dm-toggle" aria-label="Toggle theme"><div class="dm-knob"><svg class="dm-moon-svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="dm-sun-svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div></button>
+      </div>
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" data-tab="tab-email">📧 Email</button>
+        <button class="tab-btn" data-tab="tab-sn">🎓 Student No.</button>
+      </div>
+
+      <!-- Email/Password Tab -->
+      <div class="tab-panel active" id="tab-email">
+        <form id="form-email" novalidate>
+          <div class="form-group">
+            <label for="login-email">Institutional Email</label>
+            <div class="input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+              <input type="email" id="login-email" placeholder="yourname@neu.edu.ph" autocomplete="email" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="input-wrap input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required style="padding-left:42px;padding-right:44px;"/>
+              <button type="button" class="toggle-pw" aria-label="Show/Hide password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="error-msg" id="err-email"></div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px;">
+            Sign In
+          </button>
+        </form>
+        <!-- Divider -->
+        <div style="display:flex;align-items:center;gap:10px;margin-top:20px;margin-bottom:16px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="color:var(--text3);font-size:.78rem;white-space:nowrap;">Or continue with</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <!-- Google OAuth Button -->
+        <button id="btn-google" class="btn btn-block" style="
+          background:#fff;color:#1F2937;border:1.5px solid #dadce0;
+          font-weight:600;font-size:.92rem;gap:10px;padding:11px;
+          transition:box-shadow .18s,background .18s;
+        ">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.58-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+          Sign in with Google
+        </button>
+
+      </div>
+
+      <!-- Student Number Tab -->
+      <div class="tab-panel" id="tab-sn">
+        <form id="form-sn" novalidate>
+          <div class="form-group">
+            <label for="login-sn">Student Number</label>
+            <div class="input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <input type="text" id="login-sn" placeholder="24-13161-731" autocomplete="off" required/>
+            </div>
+            <small style="color:var(--text3);">Format: XX-XXXXX-XXX</small>
+          </div>
+          <div class="form-group">
+            <label for="login-sn-password">Password</label>
+            <div class="input-wrap input-icon">
+              <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input type="password" id="login-sn-password" placeholder="••••••••" autocomplete="current-password" required style="padding-left:42px;padding-right:44px;"/>
+              <button type="button" class="toggle-pw" aria-label="Show/Hide password">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="error-msg" id="err-sn"></div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:8px;">Sign In</button>
+        </form>
+      </div>
+
+<div id="toast-container"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+// ── CONFIG — replace with your values ──────────────────────
+const SUPABASE_URL = 'https://xoznxbqfgbkynmjhwqrq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhvem54YnFmZ2JreW5tamh3cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDg4MjYsImV4cCI6MjA4ODcyNDgyNn0.Kbm_Go6rRZkAU3m7HBwU3tbUnkEYqrnexGqYHRTh0nQ';
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Theme toggle ──────────────────────────────────────────────
+if (localStorage.getItem('neu_theme') === 'dark') document.body.classList.add('dark');
+document.getElementById('dm-toggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('neu_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+});
+
+// ── Google OAuth login ───────────────────────────────────────
+document.getElementById('btn-google').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-google');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;border-color:rgba(0,0,0,.15);border-top-color:#8B0000;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px;"></span> Redirecting…';
+
+  const { error } = await db.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/auth-callback.html'),
+      queryParams: { hd: 'neu.edu.ph' } // hint: only show NEU accounts in picker
+    }
+  });
+
+  if (error) {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-3.58-13.47-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google';
+    toast('Google login failed: ' + error.message, 'error');
+  }
+});
+
+// ── Tabs ────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Password toggle ─────────────────────────────────────────
+document.querySelectorAll('.toggle-pw').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const inp = btn.previousElementSibling;
+    const show = inp.type==='password';
+    inp.type = show?'text':'password';
+    btn.innerHTML = show
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  });
+});
+
+// ── Toast ───────────────────────────────────────────────────
+function toast(msg, type='info'){
+  const c=document.getElementById('toast-container');
+  const t=document.createElement('div'); t.className=`toast ${type}`;
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(t); setTimeout(()=>t.remove(),4000);
+}
+
+function setLoading(btn,loading,label='Sign In'){
+  btn.disabled=loading;
+  btn.innerHTML=loading?`<span class="spinner"></span> Signing in…`:label;
+}
+function showErr(id,msg){ const el=document.getElementById(id); el.textContent=msg; el.style.display='block'; }
+function clearErr(id){ const el=document.getElementById(id); el.style.display='none'; }
+
+// ── Helpers ──────────────────────────────────────────────────
+async function doLogin(user){
+  if(user.is_blocked){ toast('Your account has been blocked. Contact the library admin.','error'); return; }
+  localStorage.setItem('neu_visitor', JSON.stringify(user));
+  window.location.href='visitor.html';
+}
+
+// ── Email login ──────────────────────────────────────────────
+document.getElementById('form-email').addEventListener('submit', async e=>{
+  e.preventDefault(); clearErr('err-email');
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn      = e.target.querySelector('button[type=submit]');
+  const orig     = btn.innerHTML;
+  setLoading(btn,true);
+
+  // Try admin first
+  const {data:admin} = await db.from('admins').select('*').eq('email',email).single();
+  if(admin && admin.password_hash===password){
+    localStorage.setItem('neu_admin', JSON.stringify(admin));
+    window.location.href='admin.html'; return;
+  }
+
+  const {data:user,error} = await db.from('users').select('*').eq('email',email).single();
+  setLoading(btn,false); btn.innerHTML=orig;
+  if(error||!user){ showErr('err-email','No account found with that email.'); return; }
+  if(user.password_hash!==btoa(password)){ showErr('err-email','Incorrect password.'); return; }
+  await doLogin(user);
+});
+
+// ── Student number login ──────────────────────────────────────
+document.getElementById('form-sn').addEventListener('submit', async e=>{
+  e.preventDefault(); clearErr('err-sn');
+  const sn       = document.getElementById('login-sn').value.trim();
+  const password = document.getElementById('login-sn-password').value;
+  const btn      = e.target.querySelector('button[type=submit]');
+  const orig     = btn.innerHTML;
+  setLoading(btn,true);
+
+  const {data:user,error} = await db.from('users').select('*').eq('student_number',sn).single();
+  setLoading(btn,false); btn.innerHTML=orig;
+  if(error||!user){ showErr('err-sn','No account found with that student number.'); return; }
+  if(user.password_hash!==btoa(password)){ showErr('err-sn','Incorrect password.'); return; }
+  await doLogin(user);
+});
+</script>
+</body>
+</html>
