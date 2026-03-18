@@ -296,7 +296,7 @@ body.dark .toast{background:#2D3748;}
 <div class="overlay hidden" id="welcome-modal">
   <div class="welcome-box">
     <div class="welcome-icon">🎉</div>
-    <h2>Welcome to NEU Library!</h2>
+    <h2>Welcome to NEU LibraBase!</h2>
     <p>Your visit has been recorded. Enjoy your time at the library.</p>
     <div class="time-badge">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -361,7 +361,7 @@ body.dark .toast{background:#2D3748;}
 
           <!-- Left: Form -->
           <div class="card">
-            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">📋 Log Your Library Visit</h3>
+            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">Log Your Library Visit</h3>
             <p style="color:var(--text2);font-size:.84rem;margin-bottom:22px;">Fill in the details below to record your visit.</p>
             <form id="visit-form" novalidate>
               <div class="form-grid" style="margin-bottom:16px;">
@@ -429,7 +429,7 @@ body.dark .toast{background:#2D3748;}
           <div style="display:flex;flex-direction:column;gap:14px;">
             <!-- Library Hours -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">🕐 Library Hours</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">Library Hours</h4>
               <div style="display:flex;flex-direction:column;gap:8px;font-size:.83rem;">
                 <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
                   <span style="color:var(--text2);">Monday – Friday</span>
@@ -448,7 +448,7 @@ body.dark .toast{background:#2D3748;}
 
             <!-- Library Rules -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">📌 Library Reminders</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">Library Reminders</h4>
               <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:.82rem;color:var(--text2);">
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Present your student ID at the entrance.</li>
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Maintain silence inside the reading area.</li>
@@ -496,7 +496,7 @@ document.getElementById('user-name').textContent  = user.full_name || '—';
 document.getElementById('user-email').textContent = user.email || '—';
 const hr = new Date().getHours();
 const g  = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
-document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}! 👋`;
+document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}!`;
 
 // ── Navigation ────────────────────────────────────────────────
 document.querySelectorAll('.sb-item[data-sec]').forEach(btn => {
