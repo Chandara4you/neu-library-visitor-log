@@ -138,11 +138,9 @@ document.getElementById('btn-google').addEventListener('click', async () => {
   const { error } = await db.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: (() => {
-        // On Vercel the app is at root, on localhost it's inside /neu-library-system/
-        const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
-        return base + 'auth-callback.html';
-      })(),
+      redirectTo: window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+        ? 'http://127.0.0.1:5500/neu-library-system/auth-callback.html'
+        : 'https://neu-library-visitor-log-ochre.vercel.app/auth-callback.html',
       queryParams: { hd: 'neu.edu.ph' } // hint: only show NEU accounts in picker
     }
   });
