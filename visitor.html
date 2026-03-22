@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Visitor Dashboard — NEU Library</title>
+<title>Visitor Dashboard — NEU LibraBase</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -288,6 +288,44 @@ body.dark .toast{background:#2D3748;}
 ::-webkit-scrollbar{width:5px;height:5px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+/* ── Change Role Overlay ── */
+.role-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.75);
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;backdrop-filter:blur(6px);
+  opacity:0;pointer-events:none;transition:opacity .25s;
+}
+.role-overlay.active{opacity:1;pointer-events:all;}
+.role-modal{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:32px 28px;
+  max-width:380px;width:90%;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+  text-align:center;
+}
+.role-modal img{width:64px;height:64px;object-fit:contain;border-radius:50%;margin:0 auto 14px;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4));}
+.role-modal h3{font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:6px;color:var(--text);}
+.role-modal p{font-size:.84rem;color:var(--text2);margin-bottom:20px;}
+.role-choice-btn{
+  width:100%;padding:13px 18px;border-radius:10px;
+  border:1.5px solid var(--border);
+  background:var(--bg3);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;
+  cursor:pointer;transition:all .18s;margin-bottom:10px;
+  display:flex;align-items:center;gap:12px;text-align:left;
+}
+.role-choice-btn:hover{background:rgba(139,0,0,0.12);border-color:rgba(139,0,0,0.4);color:var(--text);}
+.role-choice-btn .rc-icon{font-size:1.3rem;flex-shrink:0;}
+.role-choice-btn .rc-info strong{display:block;font-size:.9rem;}
+.role-choice-btn .rc-info span{font-size:.76rem;color:var(--text2);}
+.btn-cancel-role{
+  width:100%;padding:9px;border-radius:8px;border:none;
+  background:transparent;color:var(--text3);
+  font-family:'DM Sans',sans-serif;font-size:.82rem;
+  cursor:pointer;margin-top:4px;
+}
+.btn-cancel-role:hover{color:var(--text);}
 </style>
 </head>
 <body>
@@ -311,9 +349,9 @@ body.dark .toast{background:#2D3748;}
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sb-header">
-      <img src="New Era Library Logo.png" alt="NEU Library Logo" style="width:52px;height:52px;object-fit:contain;border-radius:50%;flex-shrink:0;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));"/>
+      <img src="New Era Library Logo.png" alt="NEU LibraBase Logo" style="width:52px;height:52px;object-fit:contain;border-radius:50%;flex-shrink:0;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));"/>
       <div class="sb-logo-text">
-        <strong>NEU Library</strong>
+        <strong>NEU LibraBase</strong>
         <span>Visitor Portal</span>
       </div>
     </div>
@@ -324,10 +362,16 @@ body.dark .toast{background:#2D3748;}
       </button>
     </nav>
     <div class="sb-footer">
-      <button class="sb-item" id="logout-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign Out
-      </button>
+      <div style="display:flex;gap:6px;padding:0 2px;" id="role-btn-wrap">
+        <button class="sb-item" id="logout-btn" style="flex:1;justify-content:center;font-size:.78rem;padding:8px 6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+        <button class="sb-item" id="change-role-btn" style="flex:1;justify-content:center;font-size:.78rem;padding:8px 6px;background:rgba(212,175,55,0.12);border:1px solid rgba(212,175,55,0.3);color:#D4AF37;display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          Change Role
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -337,7 +381,7 @@ body.dark .toast{background:#2D3748;}
     <!-- Top Bar -->
     <header class="topbar">
       <div class="topbar-left">
-        <h2>Welcome to NEU Library!</h2>
+        <h2>Visitor Portal</h2>
         <p id="greeting">Welcome!</p>
       </div>
       <div class="topbar-right">
@@ -361,7 +405,7 @@ body.dark .toast{background:#2D3748;}
 
           <!-- Left: Form -->
           <div class="card">
-            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">Log Your Library Visit</h3>
+            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">📋 Log Your Library Visit</h3>
             <p style="color:var(--text2);font-size:.84rem;margin-bottom:22px;">Fill in the details below to record your visit.</p>
             <form id="visit-form" novalidate>
               <div class="form-grid" style="margin-bottom:16px;">
@@ -429,7 +473,7 @@ body.dark .toast{background:#2D3748;}
           <div style="display:flex;flex-direction:column;gap:14px;">
             <!-- Library Hours -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">Library Hours</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">🕐 Library Hours</h4>
               <div style="display:flex;flex-direction:column;gap:8px;font-size:.83rem;">
                 <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
                   <span style="color:var(--text2);">Monday – Friday</span>
@@ -448,7 +492,7 @@ body.dark .toast{background:#2D3748;}
 
             <!-- Library Rules -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">Library Reminders</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">📌 Library Reminders</h4>
               <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:.82rem;color:var(--text2);">
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Present your student ID at the entrance.</li>
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Maintain silence inside the reading area.</li>
@@ -496,7 +540,7 @@ document.getElementById('user-name').textContent  = user.full_name || '—';
 document.getElementById('user-email').textContent = user.email || '—';
 const hr = new Date().getHours();
 const g  = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
-document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}!`;
+document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}! 👋`;
 
 // ── Navigation ────────────────────────────────────────────────
 document.querySelectorAll('.sb-item[data-sec]').forEach(btn => {
@@ -555,6 +599,36 @@ function resetTimer() {
 resetTimer(); // Start timer on page load
 
 // ── Logout ────────────────────────────────────────────────────
+// ── Show Change Role btn only if user has admin role ──────────
+db.from('admins').select('id').eq('email', user.email).single().then(({ data }) => {
+  if (data) document.getElementById('change-role-btn').style.display = '';
+});
+document.getElementById('change-role-btn').addEventListener('click', () => {
+  document.getElementById('role-overlay').classList.add('active');
+});
+document.getElementById('rc-cancel').addEventListener('click', () => {
+  document.getElementById('role-overlay').classList.remove('active');
+});
+document.getElementById('role-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('role-overlay'))
+    document.getElementById('role-overlay').classList.remove('active');
+});
+document.getElementById('rc-visitor').addEventListener('click', () => {
+  document.getElementById('role-overlay').classList.remove('active');
+  toast('You are already on the Visitor Portal.', 'info');
+});
+document.getElementById('rc-admin').addEventListener('click', () => {
+  db.from('admins').select('*').eq('email', user.email).single().then(({ data: adminData }) => {
+    if (adminData) {
+      localStorage.setItem('neu_admin', JSON.stringify(adminData));
+      window.location.href = 'admin.html';
+    } else {
+      toast('No admin account found for your email.', 'error');
+      document.getElementById('role-overlay').classList.remove('active');
+    }
+  });
+});
+
 document.getElementById('logout-btn').addEventListener('click', async () => {
   await recordTimeOut('logout');
   localStorage.removeItem('neu_visitor');
@@ -619,5 +693,29 @@ document.getElementById('modal-close').addEventListener('click', () => {
 // ── Visit History ─────────────────────────────────────────────
 
 </script>
+
+<!-- ── Change Role Overlay ── -->
+<div class="role-overlay" id="role-overlay">
+  <div class="role-modal">
+    <img src="New Era Library Logo.png" alt="NEU LibraBase"/>
+    <h3>Switch Role</h3>
+    <p>Choose which portal you want to access:</p>
+    <button class="role-choice-btn" id="rc-visitor">
+      <span class="rc-icon">🎓</span>
+      <div class="rc-info">
+        <strong>Visitor Portal</strong>
+        <span>Log library visits and view your history</span>
+      </div>
+    </button>
+    <button class="role-choice-btn" id="rc-admin">
+      <span class="rc-icon">⚙️</span>
+      <div class="rc-info">
+        <strong>Admin Panel</strong>
+        <span>Manage visitors, view analytics, export logs</span>
+      </div>
+    </button>
+    <button class="btn-cancel-role" id="rc-cancel">Cancel</button>
+  </div>
+</div>
 </body>
 </html>

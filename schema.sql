@@ -76,9 +76,8 @@ INSERT INTO admins (name, email, password_hash) VALUES
   ('Christian Adlawan',      'christian.adlawan@neu.edu.ph', 'google-oauth')
 ON CONFLICT (email) DO NOTHING;
 
--- NOTE: christian.adlawan@neu.edu.ph has BOTH admin and visitor roles.
+-- NOTE: Both christian.adlawan@neu.edu.ph and jcesperanza@neu.edu.ph have BOTH admin and visitor roles.
 -- On Google login, the auth-callback.html page will detect both and show a role chooser.
--- jcesperanza@neu.edu.ph is admin-only and goes directly to admin.html after Google login.
 
 -- 8. Row Level Security (RLS)
 ALTER TABLE users   ENABLE ROW LEVEL SECURITY;
