@@ -332,15 +332,49 @@ body.dark .toast{background:#2D3748;}
 
 <!-- Welcome Modal -->
 <div class="overlay hidden" id="welcome-modal">
-  <div class="welcome-box">
+  <div class="welcome-box" style="max-width:420px;width:92%;">
     <div class="welcome-icon">🎉</div>
-    <h2>Visitor Portal</h2>
-    <p>Your visit has been recorded. Enjoy your time at the library.</p>
-    <div class="time-badge">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Time In: <span id="modal-time">—</span>
+    <h2 style="margin-bottom:4px;">Visit Recorded!</h2>
+    <p style="margin-bottom:18px;">Welcome to NEU LibraBase. Here's your check-in summary:</p>
+
+    <!-- Summary Card -->
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;margin-bottom:18px;display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8B0000,#B22222);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1rem;flex-shrink:0;" id="modal-avatar">?</div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--text);" id="modal-name">—</div>
+          <div style="font-size:.78rem;color:var(--text2);" id="modal-email">—</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="font-size:.78rem;">
+          <div style="color:var(--text3);margin-bottom:2px;">Student No.</div>
+          <div style="color:var(--text);font-weight:600;" id="modal-sn">—</div>
+        </div>
+        <div style="font-size:.78rem;">
+          <div style="color:var(--text3);margin-bottom:2px;">User Type</div>
+          <div style="color:var(--text);font-weight:600;" id="modal-type">—</div>
+        </div>
+        <div style="font-size:.78rem;">
+          <div style="color:var(--text3);margin-bottom:2px;">College</div>
+          <div style="color:var(--text);font-weight:600;font-size:.74rem;" id="modal-college">—</div>
+        </div>
+        <div style="font-size:.78rem;">
+          <div style="color:var(--text3);margin-bottom:2px;">Purpose</div>
+          <div style="color:var(--text);font-weight:600;" id="modal-purpose">—</div>
+        </div>
+      </div>
+      <div style="height:1px;background:var(--border);"></div>
+      <div class="time-badge" style="justify-content:center;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Time In: <span id="modal-time">—</span>
+      </div>
     </div>
-    <button class="btn btn-primary btn-block" id="modal-close">Continue to Portal</button>
+
+    <button class="btn btn-primary btn-block" id="modal-close" style="padding:13px;">
+      ✅ Continue to Portal
+    </button>
   </div>
 </div>
 
@@ -352,7 +386,7 @@ body.dark .toast{background:#2D3748;}
       <img src="New Era Library Logo.png" alt="NEU LibraBase Logo" style="width:52px;height:52px;object-fit:contain;border-radius:50%;flex-shrink:0;filter:drop-shadow(0 1px 4px rgba(0,0,0,0.5));"/>
       <div class="sb-logo-text">
         <strong>NEU LibraBase</strong>
-        <span>Welcome to NEU LibraBase!</span>
+        <span>Visitor Portal</span>
       </div>
     </div>
     <nav class="sb-nav">
@@ -381,7 +415,7 @@ body.dark .toast{background:#2D3748;}
     <!-- Top Bar -->
     <header class="topbar">
       <div class="topbar-left">
-        <h2>Welcome to NEU LibraBase!</h2>
+        <h2>Visitor Portal</h2>
         <p id="greeting">Welcome!</p>
       </div>
       <div class="topbar-right">
@@ -405,7 +439,7 @@ body.dark .toast{background:#2D3748;}
 
           <!-- Left: Form -->
           <div class="card">
-            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">Log Your Library Visit</h3>
+            <h3 style="font-family:'Playfair Display',serif;margin-bottom:4px;">📋 Log Your Library Visit</h3>
             <p style="color:var(--text2);font-size:.84rem;margin-bottom:22px;">Fill in the details below to record your visit.</p>
             <form id="visit-form" novalidate>
               <div class="form-grid" style="margin-bottom:16px;">
@@ -421,7 +455,7 @@ body.dark .toast{background:#2D3748;}
               <div class="form-grid" style="margin-bottom:16px;">
                 <div class="form-group">
                   <label>Student Number</label>
-                  <input type="text" id="vf-sn" readonly/>
+                  <input type="text" id="vf-sn" placeholder="e.g. 24-12345-678" autocomplete="off"/>
                 </div>
                 <div class="form-group">
                   <label for="vf-type">User Type *</label>
@@ -435,6 +469,7 @@ body.dark .toast{background:#2D3748;}
                 <label for="vf-college">College / Department *</label>
                 <select id="vf-college" required>
                   <option value="" disabled selected>Select college</option>
+                  <option>College of Informatics and Computer Studies</option>
                   <option>College of Arts and Sciences</option>
                   <option>College of Business Administration</option>
                   <option>College of Computer Studies</option>
@@ -473,7 +508,7 @@ body.dark .toast{background:#2D3748;}
           <div style="display:flex;flex-direction:column;gap:14px;">
             <!-- Library Hours -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">Library Hours</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;display:flex;align-items:center;gap:7px;">🕐 Library Hours</h4>
               <div style="display:flex;flex-direction:column;gap:8px;font-size:.83rem;">
                 <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);">
                   <span style="color:var(--text2);">Monday – Friday</span>
@@ -492,7 +527,7 @@ body.dark .toast{background:#2D3748;}
 
             <!-- Library Rules -->
             <div class="card">
-              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">Library Reminders</h4>
+              <h4 style="font-family:'Playfair Display',serif;font-size:.95rem;margin-bottom:12px;">📌 Library Reminders</h4>
               <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;font-size:.82rem;color:var(--text2);">
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Present your student ID at the entrance.</li>
                 <li style="display:flex;gap:8px;align-items:flex-start;"><span style="color:#8B0000;font-size:.9rem;flex-shrink:0;">•</span>Maintain silence inside the reading area.</li>
@@ -540,7 +575,7 @@ document.getElementById('user-name').textContent  = user.full_name || '—';
 document.getElementById('user-email').textContent = user.email || '—';
 const hr = new Date().getHours();
 const g  = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
-document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}! `;
+document.getElementById('greeting').textContent = `${g}, ${(user.full_name||'').split(' ')[0]}! 👋`;
 
 // ── Navigation ────────────────────────────────────────────────
 document.querySelectorAll('.sb-item[data-sec]').forEach(btn => {
@@ -646,7 +681,7 @@ function toast(msg, type = 'info') {
 // ── Pre-fill form ─────────────────────────────────────────────
 document.getElementById('vf-name').value  = user.full_name  || '';
 document.getElementById('vf-email').value = user.email      || '';
-document.getElementById('vf-sn').value    = user.student_number || 'N/A';
+document.getElementById('vf-sn').value    = user.student_number && user.student_number !== 'N/A' ? user.student_number : '';
 if (user.user_type) { const s = document.getElementById('vf-type');   for (let o of s.options) if (o.value === user.user_type) { o.selected = true; break; } }
 if (user.college)   { const s = document.getElementById('vf-college'); for (let o of s.options) if (o.value === user.college)   { o.selected = true; break; } }
 
@@ -667,10 +702,23 @@ document.getElementById('visit-form').addEventListener('submit', async e => {
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Logging visit…';
 
+  const student_number = document.getElementById('vf-sn').value.trim() || null;
+
+  // Save student number + college + user_type back to user profile if changed
+  const profileUpdates = {};
+  if (student_number && student_number !== user.student_number) profileUpdates.student_number = student_number;
+  if (college !== user.college) profileUpdates.college = college;
+  if (user_type !== user.user_type) profileUpdates.user_type = user_type;
+  if (Object.keys(profileUpdates).length > 0) {
+    await db.from('users').update(profileUpdates).eq('id', user.id);
+    Object.assign(user, profileUpdates);
+    localStorage.setItem('neu_visitor', JSON.stringify(user));
+  }
+
   const now = new Date();
   const { error } = await db.from('visits').insert([{
     user_id: user.id, full_name: user.full_name, email: user.email,
-    student_number: user.student_number, user_type, college, purpose,
+    student_number: student_number || user.student_number, user_type, college, purpose,
     time_in: now.toISOString(), date: now.toISOString().split('T')[0]
   }]);
 
@@ -678,7 +726,23 @@ document.getElementById('visit-form').addEventListener('submit', async e => {
 
   if (error) { errEl.textContent = 'Failed to log visit: ' + error.message; errEl.style.display = 'block'; return; }
 
-  document.getElementById('modal-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const purposeVal = [...document.querySelectorAll('input[name="purpose"]')].find(r => r.checked)?.value || '—';
+  const collegeVal = document.getElementById('vf-college').value || '—';
+  const typeVal    = document.getElementById('vf-type').value || '—';
+  const snVal      = document.getElementById('vf-sn').value.trim() || user.student_number || 'N/A';
+  const nameVal    = user.full_name || '—';
+  const emailVal   = user.email || '—';
+  const initials   = nameVal.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
+
+  document.getElementById('modal-time').textContent    = timeStr;
+  document.getElementById('modal-name').textContent    = nameVal;
+  document.getElementById('modal-email').textContent   = emailVal;
+  document.getElementById('modal-sn').textContent      = snVal;
+  document.getElementById('modal-type').textContent    = typeVal;
+  document.getElementById('modal-college').textContent = collegeVal;
+  document.getElementById('modal-purpose').textContent = purposeVal;
+  document.getElementById('modal-avatar').textContent  = initials;
   document.getElementById('welcome-modal').classList.remove('hidden');
   toast('Visit logged!', 'success');
 });
@@ -687,7 +751,13 @@ document.getElementById('modal-close').addEventListener('click', () => {
   document.getElementById('welcome-modal').classList.add('hidden');
   document.querySelectorAll('.sb-item[data-sec]').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-
+  document.querySelector('.sb-item[data-sec="visit"]').classList.add('active');
+  document.getElementById('sec-visit').classList.add('active');
+  // Reset form after check-in
+  document.getElementById('visit-form').reset();
+  document.getElementById('vf-name').value  = user.full_name || '';
+  document.getElementById('vf-email').value = user.email || '';
+  document.getElementById('vf-sn').value    = user.student_number && user.student_number !== 'N/A' ? user.student_number : '';
 });
 
 // ── Visit History ─────────────────────────────────────────────

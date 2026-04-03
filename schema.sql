@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS colleges (
 -- 6. Seed colleges
 INSERT INTO colleges (college_name) VALUES
   ('College of Informatics And Computing Studies'),
+  ('College of Informatics and Computer Studies'),
   ('College of Arts and Sciences'),
   ('College of Business Administration'),
   ('College of Computer Studies'),
